@@ -1,0 +1,11 @@
+[submodule "Kinc"]
+	path = Kinc
+	url = https://github.com/Kode/Kinc.git
+	branch = master
+[submodule "imgui"]
+	path = imgui
+	url = https://github.com/ocornut/imgui.git
+	branch = master
+[submodule "cimgui"]
+	path = cimgui
+	url = https://github.com/cimgui/cimgui.git
