@@ -6,18 +6,17 @@
 
 #pragma once
 
-typedef struct ImKincVert
-{
-	ImVec2  pos;
-	ImVec2  uv;
-	ImVec4  col;
-} ImKincVert_t;
-
-CIMGUI_API bool     ImGui_ImplG4_Init(int window);
-CIMGUI_API void     ImGui_ImplG4_Shutdown();
-CIMGUI_API void     ImGui_ImplG4_NewFrame();
-CIMGUI_API void     ImGui_ImplG4_RenderDrawData(ImDrawData* draw_data);
+#ifdef __cplusplus
+ extern "C" {
+#endif
+KINC_FUNC bool     ImGui_ImplG4_Init(int window);
+KINC_FUNC void     ImGui_ImplG4_Shutdown();
+KINC_FUNC void     ImGui_ImplG4_NewFrame();
+KINC_FUNC void     ImGui_ImplG4_RenderDrawData(ImDrawData* draw_data);
 
 // Use if you want to reset your rendering device without losing ImGui state.
-CIMGUI_API void     ImGui_ImplG4_InvalidateDeviceObjects();
-CIMGUI_API bool     ImGui_ImplG4_CreateDeviceObjects();
+KINC_FUNC void     ImGui_ImplG4_InvalidateDeviceObjects();
+KINC_FUNC bool     ImGui_ImplG4_CreateDeviceObjects();
+#ifdef __cplusplus
+ }
+#endif

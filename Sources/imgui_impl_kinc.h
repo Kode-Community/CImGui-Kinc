@@ -5,9 +5,13 @@
 // https://github.com/ocornut/imgui
 
 #pragma once
-
-
-CIMGUI_API bool     ImGui_ImplKinc_InitForG4(int window);
-CIMGUI_API void     ImGui_ImplKinc_Shutdown();
-CIMGUI_API void     ImGui_ImplKinc_NewFrame(int window);
-CIMGUI_API bool     ImGui_ImplKinc_ProcessEvent();
+#ifdef __cplusplus
+ extern "C" {
+#endif
+KINC_FUNC bool     ImGui_ImplKinc_InitForG4(int window);
+KINC_FUNC void     ImGui_ImplKinc_Shutdown();
+KINC_FUNC void     ImGui_ImplKinc_NewFrame(int window);
+KINC_FUNC bool     ImGui_ImplKinc_ProcessEvent();
+#ifdef __cplusplus
+ }
+#endif

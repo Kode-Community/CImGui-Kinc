@@ -11,16 +11,7 @@
 #include <kinc/system.h>
 #include <kinc/window.h>
 
-#ifndef IM_ASSERT
-#include <assert.h>
-#define IM_ASSERT(_EXPR)            assert(_EXPR)                               // You can override the default assert handler by editing imconfig.h
-#endif
-
-#define IM_ARRAYSIZE(_ARR)          ((int)(sizeof(_ARR) / sizeof(*(_ARR))))     // Size of a static C-style array. Don't use on pointers!
-#define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
-#include "cimgui.h"
-
-// #include "imgui.h"
+#include "imgui.h"
 #include "imgui_impl_kinc.h"
 #include "imgui_impl_g4.h"
 
@@ -32,80 +23,80 @@ static bool         g_MousePressedCurrently[5] = { false, false, false, false, f
 //static SDL_Cursor*  g_MouseCursors[ImGuiMouseCursor_COUNT] = {};
 static char*        g_ClipboardTextData = NULL;
 
-static const char* ImGui_ImplKinc_GetClipboardText(void* data)
+static const char* ImGui_ImplKinc_GetClipboardText(void*)
 {
 	return "";
 }
 
-static void ImGui_ImplKinc_SetClipboardText(void* data, const char* text)
+static void ImGui_ImplKinc_SetClipboardText(void*, const char* text)
 {
     
 }
 
 static void keyboard_key_down(int key_code)
 {
-	ImGuiIO* io = igGetIO();
+	ImGuiIO& io = ImGui::GetIO();
 	switch (key_code)
 	{
 	case KINC_KEY_SHIFT:
-		io->KeyShift = true;
+		io.KeyShift = true;
 		break;
 	case KINC_KEY_CONTROL:
-		io->KeyCtrl = true;
+		io.KeyCtrl = true;
 		break;
 	case KINC_KEY_ALT:
 	case KINC_KEY_ALT_GR:
-		io->KeyAlt = true;
+		io.KeyAlt = true;
 		break;
 	default:
-		IM_ASSERT(key_code >= 0 && key_code < IM_ARRAYSIZE(io->KeysDown));
-		io->KeysDown[key_code] = true;
+		IM_ASSERT(key_code >= 0 && key_code < IM_ARRAYSIZE(io.KeysDown));
+		io.KeysDown[key_code] = true;
 		break;
 	}
 }
 
 static void keyboard_key_up(int key_code)
 {
-	ImGuiIO* io = igGetIO();
+	ImGuiIO& io = ImGui::GetIO();
 	switch (key_code)
 	{
 	case KINC_KEY_SHIFT:
-		io->KeyShift = false;
+		io.KeyShift = false;
 		break;
 	case KINC_KEY_CONTROL:
-		io->KeyCtrl = false;
+		io.KeyCtrl = false;
 		break;
 	case KINC_KEY_ALT:
 	case KINC_KEY_ALT_GR:
-		io->KeyAlt = false;
+		io.KeyAlt = false;
 		break;
 	default:
-		IM_ASSERT(key_code >= 0 && key_code < IM_ARRAYSIZE(io->KeysDown));
-		io->KeysDown[key_code] = false;
+		IM_ASSERT(key_code >= 0 && key_code < IM_ARRAYSIZE(io.KeysDown));
+		io.KeysDown[key_code] = false;
 		break;
 	}
 }
 
 static void keyboard_key_press(unsigned character)
 {
-	ImGuiIO* io = igGetIO();
+	ImGuiIO& io = ImGui::GetIO();
 	char text[2];
 	text[0] = character;
 	text[1] = 0;
-    ImGuiIO_AddInputCharactersUTF8(io,text);
+	io.AddInputCharactersUTF8(text);
 }
 
 static void mouse_move(int window, int x, int y, int movement_x, int movement_y)
 {
-	ImGuiIO* io = igGetIO();
-	io->MousePos = *ImVec2_ImVec2Float((float)x, (float)y);
+	ImGuiIO& io = ImGui::GetIO();
+	io.MousePos = ImVec2((float)x, (float)y);
 }
 
 static void mouse_press(int window, int button, int x, int y)
 {
 	if (button < 5)
 	{
-		ImGuiIO* io = igGetIO();
+		ImGuiIO& io = ImGui::GetIO();
 		g_MousePressed[button] = true;
 		g_MousePressedCurrently[button] = true;
 	}
@@ -115,54 +106,54 @@ static void mouse_release(int window, int button, int x, int y)
 {
 	if (button < 5)
 	{
-		ImGuiIO* io = igGetIO();
+		ImGuiIO& io = ImGui::GetIO();
 		g_MousePressedCurrently[button] = false;
 	}
 }
 
 static void mouse_scroll(int window, int delta)
 {
-	ImGuiIO* io = igGetIO();
-	io->MouseWheel += delta;
+	ImGuiIO& io = ImGui::GetIO();
+	io.MouseWheel += delta;
 }
-static double frequency;
+
 static bool ImGui_ImplKinc_Init(int window)
 {
     g_Window = window;
 
     // Setup back-end capabilities flags
-    ImGuiIO* io = igGetIO();
-    io->BackendFlags |= ImGuiBackendFlags_HasMouseCursors;       // We can honor GetMouseCursor() values (optional)
-    io->BackendFlags |= ImGuiBackendFlags_HasSetMousePos;        // We can honor io->WantSetMousePos requests (optional, rarely used)
-    io->BackendPlatformName = "imgui_impl_sdl";
+    ImGuiIO& io = ImGui::GetIO();
+    io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;       // We can honor GetMouseCursor() values (optional)
+    io.BackendFlags |= ImGuiBackendFlags_HasSetMousePos;        // We can honor io.WantSetMousePos requests (optional, rarely used)
+    io.BackendPlatformName = "imgui_impl_sdl";
 
-    // Keyboard mapping. ImGui will use those indices to peek into the io->KeysDown[] array.
-    io->KeyMap[ImGuiKey_Tab] = KINC_KEY_TAB;
-    io->KeyMap[ImGuiKey_LeftArrow] = KINC_KEY_LEFT;
-    io->KeyMap[ImGuiKey_RightArrow] = KINC_KEY_RIGHT;
-    io->KeyMap[ImGuiKey_UpArrow] = KINC_KEY_UP;
-    io->KeyMap[ImGuiKey_DownArrow] = KINC_KEY_DOWN;
-    io->KeyMap[ImGuiKey_PageUp] = KINC_KEY_PAGE_UP;
-    io->KeyMap[ImGuiKey_PageDown] = KINC_KEY_PAGE_DOWN;
-    io->KeyMap[ImGuiKey_Home] = KINC_KEY_HOME;
-    io->KeyMap[ImGuiKey_End] = KINC_KEY_END;
-    io->KeyMap[ImGuiKey_Insert] = KINC_KEY_INSERT;
-    io->KeyMap[ImGuiKey_Delete] = KINC_KEY_DELETE;
-    io->KeyMap[ImGuiKey_Backspace] = KINC_KEY_BACKSPACE;
-    io->KeyMap[ImGuiKey_Space] = KINC_KEY_SPACE;
-    io->KeyMap[ImGuiKey_Enter] = KINC_KEY_RETURN;
-    io->KeyMap[ImGuiKey_Escape] = KINC_KEY_ESCAPE;
-    io->KeyMap[ImGuiKey_KeyPadEnter] = KINC_KEY_RETURN;
-    io->KeyMap[ImGuiKey_A] = KINC_KEY_A;
-    io->KeyMap[ImGuiKey_C] = KINC_KEY_C;
-    io->KeyMap[ImGuiKey_V] = KINC_KEY_V;
-    io->KeyMap[ImGuiKey_X] = KINC_KEY_X;
-    io->KeyMap[ImGuiKey_Y] = KINC_KEY_Y;
-    io->KeyMap[ImGuiKey_Z] = KINC_KEY_Z;
+    // Keyboard mapping. ImGui will use those indices to peek into the io.KeysDown[] array.
+    io.KeyMap[ImGuiKey_Tab] = KINC_KEY_TAB;
+    io.KeyMap[ImGuiKey_LeftArrow] = KINC_KEY_LEFT;
+    io.KeyMap[ImGuiKey_RightArrow] = KINC_KEY_RIGHT;
+    io.KeyMap[ImGuiKey_UpArrow] = KINC_KEY_UP;
+    io.KeyMap[ImGuiKey_DownArrow] = KINC_KEY_DOWN;
+    io.KeyMap[ImGuiKey_PageUp] = KINC_KEY_PAGE_UP;
+    io.KeyMap[ImGuiKey_PageDown] = KINC_KEY_PAGE_DOWN;
+    io.KeyMap[ImGuiKey_Home] = KINC_KEY_HOME;
+    io.KeyMap[ImGuiKey_End] = KINC_KEY_END;
+    io.KeyMap[ImGuiKey_Insert] = KINC_KEY_INSERT;
+    io.KeyMap[ImGuiKey_Delete] = KINC_KEY_DELETE;
+    io.KeyMap[ImGuiKey_Backspace] = KINC_KEY_BACKSPACE;
+    io.KeyMap[ImGuiKey_Space] = KINC_KEY_SPACE;
+    io.KeyMap[ImGuiKey_Enter] = KINC_KEY_RETURN;
+    io.KeyMap[ImGuiKey_Escape] = KINC_KEY_ESCAPE;
+    io.KeyMap[ImGuiKey_KeyPadEnter] = KINC_KEY_RETURN;
+    io.KeyMap[ImGuiKey_A] = KINC_KEY_A;
+    io.KeyMap[ImGuiKey_C] = KINC_KEY_C;
+    io.KeyMap[ImGuiKey_V] = KINC_KEY_V;
+    io.KeyMap[ImGuiKey_X] = KINC_KEY_X;
+    io.KeyMap[ImGuiKey_Y] = KINC_KEY_Y;
+    io.KeyMap[ImGuiKey_Z] = KINC_KEY_Z;
 
-    io->SetClipboardTextFn = ImGui_ImplKinc_SetClipboardText;
-    io->GetClipboardTextFn = ImGui_ImplKinc_GetClipboardText;
-    io->ClipboardUserData = NULL;
+    io.SetClipboardTextFn = ImGui_ImplKinc_SetClipboardText;
+    io.GetClipboardTextFn = ImGui_ImplKinc_GetClipboardText;
+    io.ClipboardUserData = NULL;
 
 	kinc_keyboard_key_down_callback = keyboard_key_down;
 	kinc_keyboard_key_up_callback = keyboard_key_up;
@@ -183,7 +174,7 @@ static bool ImGui_ImplKinc_Init(int window)
     g_MouseCursors[ImGuiMouseCursor_Hand] = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);*/
 
     (void)window;
-    frequency = kinc_frequency();
+
     return true;
 }
 
@@ -209,17 +200,17 @@ void ImGui_ImplKinc_Shutdown()
 
 static void ImGui_ImplKinc_UpdateMousePosAndButtons()
 {
-    ImGuiIO* io = igGetIO();
+    ImGuiIO& io = ImGui::GetIO();
 
     // Set OS mouse position if requested (rarely used, only when ImGuiConfigFlags_NavEnableSetMousePos is enabled by user)
-    /*if (io->WantSetMousePos)
-        SDL_WarpMouseInWindow(g_Window, (int)io->MousePos.x, (int)io->MousePos.y);
+    /*if (io.WantSetMousePos)
+        SDL_WarpMouseInWindow(g_Window, (int)io.MousePos.x, (int)io.MousePos.y);
     else
-        io->MousePos = ImVec2(-FLT_MAX, -FLT_MAX);*/
+        io.MousePos = ImVec2(-FLT_MAX, -FLT_MAX);*/
 
 	for (int i = 0; i < 5; ++i)
 	{
-		io->MouseDown[i] = g_MousePressed[i] || g_MousePressedCurrently[i];  // If a mouse press event came, always pass it as "mouse held this frame", so we don't miss click-release events that are shorter than 1 frame.
+		io.MouseDown[i] = g_MousePressed[i] || g_MousePressedCurrently[i];  // If a mouse press event came, always pass it as "mouse held this frame", so we don't miss click-release events that are shorter than 1 frame.
 		g_MousePressed[i] = false;
 	}
 
@@ -234,7 +225,7 @@ static void ImGui_ImplKinc_UpdateMousePosAndButtons()
         SDL_GetGlobalMouseState(&mx, &my);
         mx -= wx;
         my -= wy;
-        io->MousePos = ImVec2((float)mx, (float)my);
+        io.MousePos = ImVec2((float)mx, (float)my);
     }
 
     // SDL_CaptureMouse() let the OS know e.g. that our imgui drag outside the SDL window boundaries shouldn't e.g. trigger the OS window resize cursor.
@@ -243,18 +234,18 @@ static void ImGui_ImplKinc_UpdateMousePosAndButtons()
     SDL_CaptureMouse(any_mouse_button_down ? SDL_TRUE : SDL_FALSE);
 #else
     if (SDL_GetWindowFlags(g_Window) & SDL_WINDOW_INPUT_FOCUS)
-        io->MousePos = ImVec2((float)mx, (float)my);
+        io.MousePos = ImVec2((float)mx, (float)my);
 #endif*/
 }
 
 static void ImGui_ImplKinc_UpdateMouseCursor()
 {
-    ImGuiIO* io = igGetIO();
-    if (io->ConfigFlags & ImGuiConfigFlags_NoMouseCursorChange)
+    ImGuiIO& io = ImGui::GetIO();
+    if (io.ConfigFlags & ImGuiConfigFlags_NoMouseCursorChange)
         return;
 
     /*ImGuiMouseCursor imgui_cursor = ImGui::GetMouseCursor();
-    if (io->MouseDrawCursor || imgui_cursor == ImGuiMouseCursor_None)
+    if (io.MouseDrawCursor || imgui_cursor == ImGuiMouseCursor_None)
     {
         // Hide OS mouse cursor if imgui is drawing it or if it wants no cursor
         SDL_ShowCursor(SDL_FALSE);
@@ -270,21 +261,21 @@ static void ImGui_ImplKinc_UpdateMouseCursor()
 static void ImGui_ImplKinc_UpdateGamepads()
 {
     /*ImGuiIO& io = ImGui::GetIO();
-    memset(io->NavInputs, 0, sizeof(io->NavInputs));
-    if ((io->ConfigFlags & ImGuiConfigFlags_NavEnableGamepad) == 0)
+    memset(io.NavInputs, 0, sizeof(io.NavInputs));
+    if ((io.ConfigFlags & ImGuiConfigFlags_NavEnableGamepad) == 0)
         return;
 
     // Get gamepad
     SDL_GameController* game_controller = SDL_GameControllerOpen(0);
     if (!game_controller)
     {
-        io->BackendFlags &= ~ImGuiBackendFlags_HasGamepad;
+        io.BackendFlags &= ~ImGuiBackendFlags_HasGamepad;
         return;
     }
 
     // Update gamepad inputs
-    #define MAP_BUTTON(NAV_NO, BUTTON_NO)       { io->NavInputs[NAV_NO] = (SDL_GameControllerGetButton(game_controller, BUTTON_NO) != 0) ? 1.0f : 0.0f; }
-    #define MAP_ANALOG(NAV_NO, AXIS_NO, V0, V1) { float vn = (float)(SDL_GameControllerGetAxis(game_controller, AXIS_NO) - V0) / (float)(V1 - V0); if (vn > 1.0f) vn = 1.0f; if (vn > 0.0f && io->NavInputs[NAV_NO] < vn) io->NavInputs[NAV_NO] = vn; }
+    #define MAP_BUTTON(NAV_NO, BUTTON_NO)       { io.NavInputs[NAV_NO] = (SDL_GameControllerGetButton(game_controller, BUTTON_NO) != 0) ? 1.0f : 0.0f; }
+    #define MAP_ANALOG(NAV_NO, AXIS_NO, V0, V1) { float vn = (float)(SDL_GameControllerGetAxis(game_controller, AXIS_NO) - V0) / (float)(V1 - V0); if (vn > 1.0f) vn = 1.0f; if (vn > 0.0f && io.NavInputs[NAV_NO] < vn) io.NavInputs[NAV_NO] = vn; }
     const int thumb_dead_zone = 8000;           // SDL_gamecontroller.h suggests using this value.
     MAP_BUTTON(ImGuiNavInput_Activate,      SDL_CONTROLLER_BUTTON_A);               // Cross / A
     MAP_BUTTON(ImGuiNavInput_Cancel,        SDL_CONTROLLER_BUTTON_B);               // Circle / B
@@ -303,29 +294,29 @@ static void ImGui_ImplKinc_UpdateGamepads()
     MAP_ANALOG(ImGuiNavInput_LStickUp,      SDL_CONTROLLER_AXIS_LEFTY, -thumb_dead_zone, -32767);
     MAP_ANALOG(ImGuiNavInput_LStickDown,    SDL_CONTROLLER_AXIS_LEFTY, +thumb_dead_zone, +32767);
 
-    io->BackendFlags |= ImGuiBackendFlags_HasGamepad;
+    io.BackendFlags |= ImGuiBackendFlags_HasGamepad;
     #undef MAP_BUTTON
     #undef MAP_ANALOG*/
 }
 
 void ImGui_ImplKinc_NewFrame(int window)
 {
-    ImGuiIO* io = igGetIO();
-    IM_ASSERT(ImFontAtlas_IsBuilt(io->Fonts) && "Font atlas not built! It is generally built by the renderer back-end. Missing call to renderer _NewFrame() function? e.g. ImGui_ImplOpenGL3_NewFrame().");
+    ImGuiIO& io = ImGui::GetIO();
+    IM_ASSERT(io.Fonts->IsBuilt() && "Font atlas not built! It is generally built by the renderer back-end. Missing call to renderer _NewFrame() function? e.g. ImGui_ImplOpenGL3_NewFrame().");
 
     // Setup display size (every frame to accommodate for window resizing)
     int w, h;
     int display_w, display_h;
 	display_w = w = kinc_window_width(window);
 	display_h = h = kinc_window_height(window);
-    io->DisplaySize = *ImVec2_ImVec2Float((float)w, (float)h);
+    io.DisplaySize = ImVec2((float)w, (float)h);
     if (w > 0 && h > 0)
-        io->DisplayFramebufferScale = *ImVec2_ImVec2Float((float)display_w / w, (float)display_h / h);
+        io.DisplayFramebufferScale = ImVec2((float)display_w / w, (float)display_h / h);
 
     // Setup time step (we don't use SDL_GetTicks() because it is using millisecond resolution)
-    
+    static double frequency = kinc_frequency();
 	kinc_ticks_t current_time = kinc_timestamp();
-    io->DeltaTime = g_Time > 0 ? (float)((double)(current_time - g_Time) / frequency) : (float)(1.0f / 60.0f);
+    io.DeltaTime = g_Time > 0 ? (float)((double)(current_time - g_Time) / frequency) : (float)(1.0f / 60.0f);
     g_Time = current_time;
 
     ImGui_ImplKinc_UpdateMousePosAndButtons();
@@ -334,6 +325,3 @@ void ImGui_ImplKinc_NewFrame(int window)
     // Update game controllers (if enabled and available)
     ImGui_ImplKinc_UpdateGamepads();
 }
-
-
-#undef CIMGUI_DEFINE_ENUMS_AND_STRUCTS

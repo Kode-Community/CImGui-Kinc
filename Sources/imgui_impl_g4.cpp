@@ -15,13 +15,8 @@
 #include <kinc/graphics4/vertexstructure.h>
 #include <kinc/io/filereader.h>
 
-#include <string.h>
-
-#define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
-#include "cimgui.h"
+#include "imgui.h"
 #include "imgui_impl_g4.h"
-
-#define ImDrawCallback_ResetRenderState     (ImDrawCallback)(-1)
 
 // G4 data
 /*static ID3D11Device*            g_pd3dDevice = NULL;
@@ -89,7 +84,12 @@ static void ImGui_ImplG4_SetupRenderState(ImDrawData* draw_data)
     ctx->RSSetState(g_pRasterizerState);*/
 }
 
-
+struct ImKincVert
+{
+	ImVec2  pos;
+	ImVec2  uv;
+	ImVec4  col;
+};
 
 // Render function
 // (this used to be set in io.RenderDrawListsFn and called by ImGui::Render(), but you can now call this directly from your main loop)
@@ -116,7 +116,7 @@ void ImGui_ImplG4_RenderDrawData(ImDrawData* draw_data)
     }
 
     // Upload vertex/index data into a single contiguous GPU buffer
-	ImKincVert_t* vtx_dst = (ImKincVert_t*)kinc_g4_vertex_buffer_lock_all(&g_VB);
+	ImKincVert* vtx_dst = (ImKincVert*)kinc_g4_vertex_buffer_lock_all(&g_VB);
     ImDrawIdx* idx_dst = (ImDrawIdx*)kinc_g4_index_buffer_lock(&g_IB);
     for (int n = 0; n < draw_data->CmdListsCount; n++)
     {
@@ -213,26 +213,26 @@ void ImGui_ImplG4_RenderDrawData(ImDrawData* draw_data)
         const ImDrawList* cmd_list = draw_data->CmdLists[n];
         for (int cmd_i = 0; cmd_i < cmd_list->CmdBuffer.Size; cmd_i++)
         {
-            const ImDrawCmd pcmd = cmd_list->CmdBuffer.Data[cmd_i];
-            if (pcmd.UserCallback != NULL)
+            const ImDrawCmd* pcmd = &cmd_list->CmdBuffer[cmd_i];
+            if (pcmd->UserCallback != NULL)
             {
                 // User callback, registered via ImDrawList::AddCallback()
                 // (ImDrawCallback_ResetRenderState is a special callback value used by the user to request the renderer to reset render state.)
-                if (pcmd.UserCallback == ImDrawCallback_ResetRenderState)
+                if (pcmd->UserCallback == ImDrawCallback_ResetRenderState)
                     ImGui_ImplG4_SetupRenderState(draw_data);
                 else
-                    pcmd.UserCallback(cmd_list, pcmd.UserCallbackData);
+                    pcmd->UserCallback(cmd_list, pcmd);
             }
             else
             {
                 // Apply scissor/clipping rectangle
-				kinc_g4_scissor(pcmd.ClipRect.x - clip_off.x, pcmd.ClipRect.y - clip_off.y, pcmd.ClipRect.z - clip_off.x, pcmd.ClipRect.w - clip_off.y);
+				kinc_g4_scissor(pcmd->ClipRect.x - clip_off.x, pcmd->ClipRect.y - clip_off.y, pcmd->ClipRect.z - clip_off.x, pcmd->ClipRect.w - clip_off.y);
 
                 // Bind texture, Draw
-				kinc_g4_set_texture(g_FontSampler, (kinc_g4_texture_t*)pcmd.TextureId);
+				kinc_g4_set_texture(g_FontSampler, (kinc_g4_texture*)pcmd->TextureId);
 				kinc_g4_set_vertex_buffer(&g_VB);
 				kinc_g4_set_index_buffer(&g_IB);
-				kinc_g4_draw_indexed_vertices_from_to_from(pcmd.IdxOffset + global_idx_offset, pcmd.ElemCount, pcmd.VtxOffset + global_vtx_offset);
+				kinc_g4_draw_indexed_vertices_from_to_from(pcmd->IdxOffset + global_idx_offset, pcmd->ElemCount, pcmd->VtxOffset + global_vtx_offset);
             }
         }
         global_idx_offset += cmd_list->IdxBuffer.Size;
@@ -262,10 +262,10 @@ void ImGui_ImplG4_RenderDrawData(ImDrawData* draw_data)
 static void ImGui_ImplG4_CreateFontsTexture()
 {
     // Build texture atlas
-    ImGuiIO* io = igGetIO();
+    ImGuiIO& io = ImGui::GetIO();
     unsigned char* pixels;
     int width, height;
-    ImFontAtlas_GetTexDataAsRGBA32(io->Fonts,&pixels, &width, &height,NULL);
+    io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
 
     // Upload texture to graphics system
     {
@@ -280,7 +280,7 @@ static void ImGui_ImplG4_CreateFontsTexture()
     }
 
     // Store our identifier
-    io->Fonts->TexID = (ImTextureID)&g_Texture;
+    io.Fonts->TexID = (ImTextureID)&g_Texture;
 
     // Create texture sampler
 	g_FontSampler = kinc_g4_pipeline_get_texture_unit(&g_Pipeline, "Texture");
@@ -408,9 +408,9 @@ void    ImGui_ImplG4_InvalidateDeviceObjects()
 bool    ImGui_ImplG4_Init(int window)
 {
     // Setup back-end capabilities flags
-    ImGuiIO* io = igGetIO();
-    io->BackendRendererName = "imgui_impl_g4";
-    io->BackendFlags |= ImGuiBackendFlags_RendererHasVtxOffset;  // We can honor the ImDrawCmd::VtxOffset field, allowing for large meshes.
+    ImGuiIO& io = ImGui::GetIO();
+    io.BackendRendererName = "imgui_impl_g4";
+    io.BackendFlags |= ImGuiBackendFlags_RendererHasVtxOffset;  // We can honor the ImDrawCmd::VtxOffset field, allowing for large meshes.
 
     // Get factory from device
     /*IDXGIDevice* pDXGIDevice = NULL;
@@ -446,5 +446,3 @@ void ImGui_ImplG4_NewFrame()
     if (!g_FontSamplerInitialized)
         ImGui_ImplG4_CreateDeviceObjects();
 }
-
-#undef CIMGUI_DEFINE_ENUMS_AND_STRUCTS
