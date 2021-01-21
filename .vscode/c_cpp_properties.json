@@ -16,7 +16,6 @@
             ],
             "defines": [
                 "IMGUI_USER_CONFIG=\"imguiconfig.h\"",
-                "CIMGUI_NO_EXPORT",
                 "KORE_G1",
                 "KORE_G2",
                 "KORE_G3",
