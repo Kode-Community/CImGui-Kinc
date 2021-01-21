@@ -1,4 +1,4 @@
-let project = new Project('DearImGui');
+let project = new Project('CImGui');
 
 project.addDefine('IMGUI_USER_CONFIG="imguiconfig.h"');
 project.addIncludeDir('include');
