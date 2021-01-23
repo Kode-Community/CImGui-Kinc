@@ -15,7 +15,7 @@
 #include <stdio.h>
 
 // Data
-
+#define NULL 0
 
 // Forward declarations of helper functions
 void CreateRenderTarget();

@@ -1,6 +1,9 @@
 let project = new Project('CImGui');
 
-project.addDefine('IMGUI_USER_CONFIG="imguiconfig.h"');
+// project.addDefine('IMGUI_USER_CONFIG="imguiconfig.h"');
+
+project.addExclude('cimgui/imgui/imconfig.h');
+project.addDefine('IMGUI_INCLUDE_IMCONFIG_H');
 project.addIncludeDir('include');
 
 project.addIncludeDir('cimgui/imgui');
@@ -14,6 +17,7 @@ project.addFiles(
 	'cimgui/imgui/imgui_widgets.cpp',
 	'cimgui/imgui/imgui_demo.cpp'
 );
+
 
 project.addFiles('Sources/**', 'include/**', 'Shaders/**');
 project.setDebugDir('Deployment');
