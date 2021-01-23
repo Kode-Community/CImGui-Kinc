@@ -95,6 +95,7 @@ struct ImKincVert
 // (this used to be set in io.RenderDrawListsFn and called by ImGui::Render(), but you can now call this directly from your main loop)
 void ImGui_ImplG4_RenderDrawData(ImDrawData* draw_data)
 {
+    ImGui_ImplG4_SetupRenderState(draw_data);
     // Avoid rendering when minimized
     if (draw_data->DisplaySize.x <= 0.0f || draw_data->DisplaySize.y <= 0.0f)
         return;
@@ -201,7 +202,7 @@ void ImGui_ImplG4_RenderDrawData(ImDrawData* draw_data)
     ctx->IAGetInputLayout(&old.InputLayout);*/
 
     // Setup desired DX state
-    ImGui_ImplG4_SetupRenderState(draw_data);
+    
 
     // Render command lists
     // (Because we merged all buffers into a single one, we maintain our own offset into them)
