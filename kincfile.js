@@ -15,6 +15,7 @@ project.addFiles(
 	'cimgui/imgui/imgui.cpp',
 	'cimgui/imgui/imgui_draw.cpp',
 	'cimgui/imgui/imgui_widgets.cpp',
+	'cimgui/imgui/imgui_tables.cpp',
 	'cimgui/imgui/imgui_demo.cpp'
 );
 

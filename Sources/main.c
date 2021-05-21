@@ -7,18 +7,15 @@
 #include <kinc/graphics4/graphics.h>
 #include <kinc/system.h>
 
-#define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
-#include "cimgui.h"
+
 #include "imgui_impl_kinc.h"
 #include "imgui_impl_g4.h"
+#define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
+#include "cimgui.h"
 
 #include <stdio.h>
 
 // Data
-
-// Forward declarations of helper functions
-void CreateRenderTarget();
-void CleanupRenderTarget();
 
     bool show_demo_window = true;
     bool show_another_window = false;
@@ -26,7 +23,8 @@ void CleanupRenderTarget();
 
 static void update()
 {
-	ImVec2 none = *ImVec2_ImVec2Float(0.0,0.0); 
+	
+	ImVec2 none = *ImVec2_ImVec2Nil();
 
 	kinc_g4_begin(0);
 
@@ -36,22 +34,22 @@ static void update()
 	igNewFrame();
 
 	// 1. Show the big demo window (Most of the sample code is in igShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
-	if (show_demo_window)
-		igShowDemoWindow(&show_demo_window);
+	/*if (show_demo_window)
+		igShowDemoWindow(&show_demo_window);*/
 
 	// 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
 	{
 		static float f = 0.0f;
 		static int counter = 0;
-
-		igBegin("Hello, world!",NULL,NULL);                          // Create a window called "Hello, world!" and append into it.
+		bool open = true;
+		igBegin("Hello, world!",&open,0);                          // Create a window called "Hello, world!" and append into it.
 
 		igText("This is %s useful text.","other");               // Display some text (you can use a format strings too)
 		igCheckbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
 		igCheckbox("Another Window", &show_another_window);
 
-		igSliderFloat("float", &f, 0.0f, 1.0f,"%.3f",NULL);            // Edit 1 float using a slider from 0.0f to 1.0f
-		igColorEdit3("clear color", (float*)&clear_color,NULL); // Edit 3 floats representing a color
+		igSliderFloat("float", &f, 0.0f, 1.0f,"%.3f",0);            // Edit 1 float using a slider from 0.0f to 1.0f
+		igColorEdit3("clear color", (float*)&clear_color,0); // Edit 3 floats representing a color
 
 		if (igButton("Button",none))                            // Buttons return true when clicked (most widgets return true when edited/activated)
 			counter++;
@@ -65,7 +63,7 @@ static void update()
 	// 3. Show another simple window.
 	if (show_another_window)
 	{
-		igBegin("Another Window", &show_another_window,NULL);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
+		igBegin("Another Window", &show_another_window,0);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
 		igText("Hello from another window!");
 		if (igButton("Close Me",none))
 			show_another_window = false;
@@ -93,13 +91,13 @@ int kickstart(int argc, char** argv)
 	clear_color = ImVec4_ImVec4Float(0.45f, 0.55f, 0.60f, 1.00f);
     // Setup Dear ImGui context
     // igGetVersion();
-    igCreateContext(NULL);
+    ImGuiContext* ctx = igCreateContext((ImFontAtlas*)0);
     ImGuiIO* io = igGetIO(); (void)io;
     //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
     //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
     // Setup Dear ImGui style
-    igStyleColorsDark(NULL);
+    igStyleColorsDark((ImGuiStyle*)0);
     //igStyleColorsClassic();
 
     // Setup Platform/Renderer bindings
@@ -131,22 +129,7 @@ int kickstart(int argc, char** argv)
     // Cleanup
     ImGui_ImplG4_Shutdown();
     ImGui_ImplKinc_Shutdown();
-    igDestroyContext(NULL);
+    igDestroyContext(ctx);
 
     return 0;
-}
-
-// Helper functions
-
-void CreateRenderTarget()
-{
-    /*ID3D11Texture2D* pBackBuffer;
-    g_pSwapChain->GetBuffer(0, IID_PPV_ARGS(&pBackBuffer));
-    g_pd3dDevice->CreateRenderTargetView(pBackBuffer, NULL, &g_mainRenderTargetView);
-    pBackBuffer->Release();*/
-}
-
-void CleanupRenderTarget()
-{
-    /*if (g_mainRenderTargetView) { g_mainRenderTargetView->Release(); g_mainRenderTargetView = NULL; }*/
 }

@@ -12,7 +12,7 @@
 KINC_FUNC bool     ImGui_ImplG4_Init(int window);
 KINC_FUNC void     ImGui_ImplG4_Shutdown();
 KINC_FUNC void     ImGui_ImplG4_NewFrame();
-KINC_FUNC void     ImGui_ImplG4_RenderDrawData(ImDrawData* draw_data);
+KINC_FUNC void     ImGui_ImplG4_RenderDrawData(struct ImDrawData* draw_data);
 
 // Use if you want to reset your rendering device without losing ImGui state.
 KINC_FUNC void     ImGui_ImplG4_InvalidateDeviceObjects();
