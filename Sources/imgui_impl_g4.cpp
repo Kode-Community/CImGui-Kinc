@@ -95,7 +95,6 @@ struct ImKincVert
 // (this used to be set in io.RenderDrawListsFn and called by ImGui::Render(), but you can now call this directly from your main loop)
 void ImGui_ImplG4_RenderDrawData(ImDrawData* draw_data)
 {
-    draw_data = ImGui::GetDrawData();
     // Avoid rendering when minimized
     if (draw_data->DisplaySize.x <= 0.0f || draw_data->DisplaySize.y <= 0.0f)
         return;
