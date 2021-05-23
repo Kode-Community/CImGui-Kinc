@@ -19,6 +19,8 @@ project.addFiles(
 	'cimgui/imgui/imgui_demo.cpp'
 );
 
+project.addDefine('IMGUI_IMPL_API=extern\ \"C\"');
+
 
 project.addFiles('Sources/**', 'include/**', 'Shaders/**');
 project.setDebugDir('Deployment');

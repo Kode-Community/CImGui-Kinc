@@ -6,17 +6,11 @@
 
 #pragma once
 
-#ifdef __cplusplus
- extern "C" {
-#endif
-KINC_FUNC bool     ImGui_ImplG4_Init(int window);
-KINC_FUNC void     ImGui_ImplG4_Shutdown();
-KINC_FUNC void     ImGui_ImplG4_NewFrame();
-KINC_FUNC void     ImGui_ImplG4_RenderDrawData(struct ImDrawData* draw_data);
+IMGUI_IMPL_API bool     ImGui_ImplG4_Init(int window);
+IMGUI_IMPL_API void     ImGui_ImplG4_Shutdown();
+IMGUI_IMPL_API void     ImGui_ImplG4_NewFrame();
+IMGUI_IMPL_API void     ImGui_ImplG4_RenderDrawData();
 
 // Use if you want to reset your rendering device without losing ImGui state.
-KINC_FUNC void     ImGui_ImplG4_InvalidateDeviceObjects();
-KINC_FUNC bool     ImGui_ImplG4_CreateDeviceObjects();
-#ifdef __cplusplus
- }
-#endif
+IMGUI_IMPL_API void     ImGui_ImplG4_InvalidateDeviceObjects();
+IMGUI_IMPL_API bool     ImGui_ImplG4_CreateDeviceObjects();

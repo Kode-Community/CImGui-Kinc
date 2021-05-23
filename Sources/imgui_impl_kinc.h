@@ -6,13 +6,7 @@
 
 #pragma once
 
-#ifdef __cplusplus
- extern "C" {
-#endif
-KINC_FUNC bool     ImGui_ImplKinc_InitForG4(int window);
-KINC_FUNC void     ImGui_ImplKinc_Shutdown();
-KINC_FUNC void     ImGui_ImplKinc_NewFrame(int window);
-KINC_FUNC bool     ImGui_ImplKinc_ProcessEvent();
-#ifdef __cplusplus
- }
-#endif
+IMGUI_IMPL_API bool     ImGui_ImplKinc_InitForG4(int window);
+IMGUI_IMPL_API void     ImGui_ImplKinc_Shutdown();
+IMGUI_IMPL_API void     ImGui_ImplKinc_NewFrame(int window);
+IMGUI_IMPL_API bool     ImGui_ImplKinc_ProcessEvent();

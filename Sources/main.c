@@ -2,18 +2,19 @@
 // If you are new to dear imgui, see examples/README.txt and documentation at the top of imgui.cpp.
 // (SDL is a cross-platform general purpose library for handling windows, inputs, OpenGL/Vulkan graphics context creation, etc.)
 
-#include <kinc/pch.h>
+#include <kinc/global.h>
 
 #include <kinc/graphics4/graphics.h>
 #include <kinc/system.h>
 
+#include <stdio.h>
 
-#include "imgui_impl_kinc.h"
-#include "imgui_impl_g4.h"
+#define CIMGUI_NO_EXPORT 1
 #define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
 #include "cimgui.h"
 
-#include <stdio.h>
+
+
 
 // Data
 
@@ -21,7 +22,7 @@
     bool show_another_window = false;
 	ImVec4* clear_color;
 
-static void update()
+static void update(void)
 {
 	
 	ImVec2 none = *ImVec2_ImVec2Nil();
@@ -53,7 +54,7 @@ static void update()
 
 		if (igButton("Button",none))                            // Buttons return true when clicked (most widgets return true when edited/activated)
 			counter++;
-		igSameLine(0.0f,-1.0f);
+		igSameLine(0.0F,-1.0F);
 		igText("counter = %d", counter);
 
 		igText("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / igGetIO()->Framerate, igGetIO()->Framerate);
@@ -74,7 +75,7 @@ static void update()
 	igRender();
 	/*g_pd3dDeviceContext->OMSetRenderTargets(1, &g_mainRenderTargetView, NULL);*/
 	kinc_g4_clear(KINC_G4_CLEAR_COLOR, 0xff0000ff, 0.0f, 0);
-	ImGui_ImplG4_RenderDrawData(igGetDrawData());
+	ImGui_ImplG4_RenderDrawData();
 
 	kinc_g4_end(0);
 	kinc_g4_swap_buffers();
